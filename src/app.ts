@@ -1,7 +1,9 @@
 import "@babylonjs/core/Debug/debugLayer";
 import "@babylonjs/inspector";
 import "@babylonjs/loaders/glTF";
-import { Engine, Scene, ArcRotateCamera, Vector3, HemisphericLight, Mesh, MeshBuilder } from "@babylonjs/core";
+import { Engine, Scene, ArcRotateCamera, Vector3, HemisphericLight, Mesh, MeshBuilder, Color4, FreeCamera, Sound } from "@babylonjs/core";
+import { AdvancedDynamicTexture, StackPanel, Button, TextBlock, Rectangle, Control, Image } from "@babylonjs/gui";
+
 
 enum State { START = 0, GAME = 1 , LOSE = 3, CUTSCENE = 4 }
 
@@ -67,6 +69,42 @@ class App {
         document.body.appendChild(this._canvas);
 
         return this._canvas;
+    }
+
+    private async goToStart() {
+        this._engine.displayLoadingUI();
+
+        this._scene.detachControl();
+        let scene = new Scene(this._engine);
+        scene.clearColor = new Color4(0, 0, 0, 1);
+
+        let camera = new FreeCamera("camera1", new Vector3(0, 0, 0), scene);
+        camera.setTarget(Vector3.Zero());
+
+        //--SOUNDS--
+        const start = new Sound("startSong", "./sounds/copycat(revised).mp3", scene, function() {
+
+        }, {
+            volume: 0.25,
+            loop: true,
+            autoplay: true
+        });
+        const sfx = new Sound("selection", "./sounds/vgmenuselect.wav", scene, function(){
+        });
+
+        //--GUI--
+        const guiMenu = AdvancedDynamicTexture.CreateFullscreenUI("UI");
+        guiMenu.idealHeight = 720;
+
+        //background image
+        const imageRect = new Rectangle("titleContainer")
+        imageRect.width = 0.8;
+        imageRect.thickness = 0;
+        guiMenu.addControl(imageRect);
+
+        const startbg = new Image("startbg", "./sprites/start.jpeg");
+        guiMenu.addControl(startbg);
+
     }
 
 }
