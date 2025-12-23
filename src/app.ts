@@ -1,17 +1,26 @@
 import "@babylonjs/core/Debug/debugLayer";
 import "@babylonjs/inspector";
 import "@babylonjs/loaders/glTF";
-import { Engine, Scene, ArcRotateCamera, Vector3, HemisphericLight, Mesh, MeshBuilder, Color4, FreeCamera, Sound } from "@babylonjs/core";
+import { Engine, Scene, ArcRotateCamera, Vector3, HemisphericLight, Mesh, MeshBuilder, Color4, FreeCamera, Sound, Effect, PostProcess } from "@babylonjs/core";
 import { AdvancedDynamicTexture, StackPanel, Button, TextBlock, Rectangle, Control, Image } from "@babylonjs/gui";
 
 
 enum State { START = 0, GAME = 1 , LOSE = 3, CUTSCENE = 4 }
 
 class App {
-
+    // General Entire Application
     private _scene: Scene;
     private _canvas: HTMLCanvasElement;
     private _engine: Engine;
+
+    // Game State Related
+
+    // Sounds
+
+    // Scene Related
+
+    // Post Process
+    private _transition: boolean = false;
 
     private _state: number = 0;
 
@@ -71,7 +80,7 @@ class App {
         return this._canvas;
     }
 
-    private async goToStart() {
+    private async _goToStart() {
         this._engine.displayLoadingUI();
 
         this._scene.detachControl();
@@ -82,29 +91,129 @@ class App {
         camera.setTarget(Vector3.Zero());
 
         //--SOUNDS--
-        const start = new Sound("startSong", "./sounds/copycat(revised).mp3", scene, function() {
+        // const start = new Sound("startSong", "./sounds/copycat(revised).mp3", scene, function() {
 
-        }, {
-            volume: 0.25,
-            loop: true,
-            autoplay: true
-        });
-        const sfx = new Sound("selection", "./sounds/vgmenuselect.wav", scene, function(){
-        });
+        // }, {
+        //     volume: 0.25,
+        //     loop: true,
+        //     autoplay: true
+        // });
+        // const sfx = new Sound("selection", "./sounds/vgmenuselect.wav", scene, function(){
+        // });
 
         //--GUI--
         const guiMenu = AdvancedDynamicTexture.CreateFullscreenUI("UI");
         guiMenu.idealHeight = 720;
 
         //background image
-        const imageRect = new Rectangle("titleContainer")
-        imageRect.width = 0.8;
-        imageRect.thickness = 0;
-        guiMenu.addControl(imageRect);
+        // const imageRect = new Rectangle("titleContainer")
+        // imageRect.width = 0.8;
+        // imageRect.thickness = 0;
+        // guiMenu.addControl(imageRect);
 
-        const startbg = new Image("startbg", "./sprites/start.jpeg");
-        guiMenu.addControl(startbg);
+        // const startbg = new Image("startbg", "./sprites/start.jpeg");
+        // imageRect.addControl(startbg);
 
+        // const title = new TextBlock("title", "SUMMER'S FESTIVAL");
+        // title.resizeToFit = true;
+        // title.fontFamily = "Ceviche One";
+        // title.fontSize = "64px";
+        // title.color = "white";
+        // title.resizeToFit = true;
+        // title.top = "14px";
+        // title.width = 0.8;
+        // title.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+        // imageRect.addControl(title);
+
+        const startBtn = Button.CreateSimpleButton("start", "PLAY");
+        startBtn.fontFamily = "Viga";
+        startBtn.width = 0.2;
+        startBtn.height = "40px";
+        startBtn.color = "white";
+        startBtn.top = "-14px";
+        startBtn.thickness = 0;
+        startBtn.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;
+        guiMenu.addControl(startBtn);
+
+        // transition effect
+        // Effect.RegisterShader("fade",
+        //     "precision highp float;" +
+        //     "varying vec2 vUV;" +
+        //     "uniform sampler2D textureSampler;" +
+        //     "uniform float fadeLevel;" +
+        //     "void main(void){" + 
+        //     "vec4 baseColor = texture2D(textureSampler, vUV) * fadeLevel;" +
+        //     "baseColor.a = 1.0;" +
+        //     "gl_FragColor = baseColor;" +
+        //     "}");
+        
+        // let fadeLevel = 1.0;
+        // this._transition = false;
+        // scene.registerBeforeRender(() => {
+        //     if (this._transition) {
+        //         fadeLevel -= .05;
+        //         if (fadeLevel <= 0){
+        //             // this._goToCutScene();
+        //             this._transition = false;
+        //         }
+        //     }
+        // });
+
+        startBtn.onPointerDownObservable.add(() => {
+            // const postProcess = new PostProcess("Fade", "fade", ["fadeLevel"], null, 1.0, camera);
+            // postProcess.onApply = (effect) => {
+            //     effect.setFloat("fadeLevel", fadeLevel);
+            // };
+            // this._transition = true;
+            // sfx.play();
+            this._goToCutScene(); // Remove in final
+            scene.detachControl();
+        });
+
+        // let isMobile = false;
+
+        // Add mobile logic here
+
+
+        // Scene Finishes Loading
+        await scene.whenReadyAsync();
+        this._engine.hideLoadingUI();
+
+        this._scene.dispose();
+        this._scene = scene;
+        this._state = State.START;
+
+    }
+
+    private async _goToLose(): Promise<void> {
+        this._engine.displayLoadingUI();
+
+        // --SCENE SETUP--
+        this._scene.detachControl();
+        let scene = new Scene(this._engine);
+        scene.clearColor = new Color4(0, 0, 0, 1);
+        let camera = new FreeCamera("camera1", new Vector3(0, 0, 0), scene);
+        camera.setTarget(Vector3.Zero());
+
+        // --GUI--
+        const guiMenu = AdvancedDynamicTexture.CreateFullscreenUI("UI");
+        const mainBtn = Button.CreateSimpleButton("mainmenu", "MAIN MENU");
+        mainBtn.width = 0.2;
+        mainBtn.height = "40px";
+        mainBtn.color = "white";
+        guiMenu.addControl(mainBtn);
+
+        mainBtn.onPointerUpObservable.add(() => {
+            this._goToStart();
+        });
+
+        // --SCENE FINISHED LOADING--
+        await scene.whenReadyAsync();
+        this._engine.hideLoadingUI();
+
+        this._scene.dispose();
+        this._scene = scene;
+        this._state = State.LOSE;
     }
 
 }
