@@ -18,6 +18,7 @@ class App {
     // Sounds
 
     // Scene Related
+    private _cutScene: Scene;
 
     // Post Process
     private _transition: boolean = false;
@@ -215,6 +216,50 @@ class App {
         this._scene = scene;
         this._state = State.LOSE;
     }
+
+    private async _goToCutScene(): Promise<void> {
+        this._engine.displayLoadingUI();
+
+        // --SCENE SETUP--
+        this._scene.detachControl();
+        this._cutScene = new Scene(this._engine);
+        let camera = new FreeCamera("camera1", new Vector3(0, 0, 0), this._cutScene);
+        camera.setTarget(Vector3.Zero());
+        this._cutScene.clearColor = new Color4(0, 0, 0, 1);
+
+        // --GUI--
+        const cutScene = AdvancedDynamicTexture.CreateFullscreenUI("cutscene");
+        // let transition = 0;
+        // let canplay = false;
+        // let finished_anim = false;
+        // let anims_loaded = 0;
+
+        // --PROGRESS DIALOGUE--
+        const next = Button.CreateSimpleButton("next", "NEXT");
+        next.color = "white";
+        next.thickness = 0;
+        next.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;
+        next.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
+        next.width = "64px";
+        next.height = "64px";
+        next.top = "-3%";
+        next.left = "-12%";
+        cutScene.addControl(next);
+
+        next.onPointerUpObservable.add(() => {
+            this._goToGame();
+        })
+
+        await this._cutScene.whenReadyAsync();
+        this._engine.hideLoadingUI();
+
+        this._scene.dispose();
+        this._state = State.CUTSCENE;
+        this._scene = this._cutScene;
+
+    }
+
+    
 
 }
 new App();
