@@ -276,6 +276,7 @@ class App {
         cutScene.addControl(next);
 
         next.onPointerUpObservable.add(() => {
+            // this._setUpGame();
             this._goToGame();
         })
 
@@ -285,6 +286,11 @@ class App {
         this._scene.dispose();
         this._state = State.CUTSCENE;
         this._scene = this._cutScene;
+
+        var finishedLoading = false;
+        await this._setUpGame().then(res =>{
+            finishedLoading = true;
+        });
 
     }
 
@@ -297,8 +303,11 @@ class App {
 
         // --SETUP SCENE--
         this._scene.detachControl();
+        // let scene = new Scene(this._engine);
         let scene = this._gamescene;
-        scene.clearColor = new Color4(0.01568627450980392, 0.01568627450980392, 0.20392156862745098);
+        scene.clearColor = new Color4(0, 0, 0, 1);
+
+        // scene.clearColor = new Color4(0.01568627450980392, 0.01568627450980392, 0.20392156862745098);
         let camera: ArcRotateCamera = new ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 2, 2, Vector3.Zero(), scene);
         camera.setTarget(Vector3.Zero());
 
