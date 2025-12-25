@@ -3,6 +3,7 @@ import "@babylonjs/inspector";
 import "@babylonjs/loaders/glTF";
 import { Engine, Scene, ArcRotateCamera, Vector3, HemisphericLight, Mesh, MeshBuilder, Color4, FreeCamera, Sound, Effect, PostProcess } from "@babylonjs/core";
 import { AdvancedDynamicTexture, StackPanel, Button, TextBlock, Rectangle, Control, Image } from "@babylonjs/gui";
+import { Environment } from "./environment";
 
 
 enum State { START = 0, GAME = 1 , LOSE = 3, CUTSCENE = 4 }
@@ -20,6 +21,7 @@ class App {
     // Scene Related
     private _cutScene: Scene;
     private _gamescene: Scene;
+    private _environment: Environment;
 
     // Post Process
     private _transition: boolean = false;
@@ -292,6 +294,11 @@ class App {
     private async _setUpGame() {
         let scene = new Scene(this._engine);
         this._gamescene = scene;
+
+        // create env
+        const environment = new Environment(scene);
+        this._environment = environment;
+        await this._environment.load();
     }
 
     private async _goToGame() {
