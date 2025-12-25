@@ -29,15 +29,13 @@ class App {
     constructor() {
 
         this._canvas = this._createCanvas();
-
-        // initialize babylon scene and engine
         this._engine = new Engine(this._canvas, true);
         this._scene = new Scene(this._engine);
 
-        var camera: ArcRotateCamera = new ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 2, 2, Vector3.Zero(), this._scene);
-        camera.attachControl(this._canvas, true);
-        var light1: HemisphericLight = new HemisphericLight("light1", new Vector3(1, 1, 0), this._scene);
-        var sphere: Mesh = MeshBuilder.CreateSphere("sphere", { diameter: 1 }, this._scene);
+        // var camera: ArcRotateCamera = new ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 2, 2, Vector3.Zero(), this._scene);
+        // camera.attachControl(this._canvas, true);
+        // var light1: HemisphericLight = new HemisphericLight("light1", new Vector3(1, 1, 0), this._scene);
+        // var sphere: Mesh = MeshBuilder.CreateSphere("sphere", { diameter: 1 }, this._scene);
 
         // hide/show the Inspector
         window.addEventListener("keydown", (ev) => {
@@ -54,6 +52,29 @@ class App {
         // MAIN render loop & state machine
         this._main();
 
+    }
+
+    private _createCanvas(): HTMLCanvasElement {
+
+        document.documentElement.style["overflow"] = "hidden";
+        document.documentElement.style.overflow = "hidden";
+        document.documentElement.style.width = "100%";
+        document.documentElement.style.height = "100%";
+        document.documentElement.style.margin = "0";
+        document.documentElement.style.padding = "0";
+        document.body.style.overflow = "hidden";
+        document.body.style.width = "100%";
+        document.body.style.height = "100%";
+        document.body.style.margin = "0";
+        document.body.style.padding = "0";
+
+        this._canvas = document.createElement("canvas");
+        this._canvas.style.width = "100%";
+        this._canvas.style.height = "100%";
+        this._canvas.id = "gameCanvas";
+        document.body.appendChild(this._canvas);
+
+        return this._canvas;
     }
 
     private async _main(): Promise<void> {
@@ -83,31 +104,6 @@ class App {
         window.addEventListener("resize", () => {
             this._engine.resize();
         });
-    }
-
-    private _createCanvas(): HTMLCanvasElement {
-
-        //Commented out for development
-        document.documentElement.style["overflow"] = "hidden";
-        document.documentElement.style.overflow = "hidden";
-        document.documentElement.style.width = "100%";
-        document.documentElement.style.height = "100%";
-        document.documentElement.style.margin = "0";
-        document.documentElement.style.padding = "0";
-        document.body.style.overflow = "hidden";
-        document.body.style.width = "100%";
-        document.body.style.height = "100%";
-        document.body.style.margin = "0";
-        document.body.style.padding = "0";
-
-        //create the canvas html element and attach it to the webpage
-        this._canvas = document.createElement("canvas");
-        this._canvas.style.width = "100%";
-        this._canvas.style.height = "100%";
-        this._canvas.id = "gameCanvas";
-        document.body.appendChild(this._canvas);
-
-        return this._canvas;
     }
 
     private async _goToStart() {
@@ -275,8 +271,7 @@ class App {
         next.left = "-12%";
         cutScene.addControl(next);
 
-        next.onPointerUpObservable.add(() => {
-            // this._setUpGame();
+        next.onPointerUpObservable.add(() => {            
             this._goToGame();
         })
 
