@@ -365,9 +365,9 @@ class App {
         light.intensity = 35;
         light.radius = 1;
 
-        let camera: ArcRotateCamera = new ArcRotateCamera("Camera", 0, Math.PI / 4, 25, Vector3.Zero(), scene);
-        camera.setTarget(new Vector3(0, 3, 0)); // Look at player position
-        camera.attachControl(this._canvas, true); // ← ADD THIS LINE
+        // let camera: ArcRotateCamera = new ArcRotateCamera("Camera", 0, Math.PI / 4, 25, Vector3.Zero(), scene);
+        // camera.setTarget(new Vector3(0, 3, 0)); // Look at player position
+        // camera.attachControl(this._canvas, true); // ← ADD THIS LINE
 
         const shadowGenerator = new ShadowGenerator(1024, light);
         shadowGenerator.darkness = 0.4;
