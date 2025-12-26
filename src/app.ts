@@ -1,7 +1,7 @@
 import "@babylonjs/core/Debug/debugLayer";
 import "@babylonjs/inspector";
 import "@babylonjs/loaders/glTF";
-import { Engine, Scene, ArcRotateCamera, Vector3, HemisphericLight, Mesh, MeshBuilder, Color4, FreeCamera, Sound, Effect, PostProcess } from "@babylonjs/core";
+import { Engine, Scene, ArcRotateCamera, Vector3, HemisphericLight, Mesh, MeshBuilder, Color4, FreeCamera, Sound, Effect, PostProcess, Matrix, Quaternion, StandardMaterial, Color3 } from "@babylonjs/core";
 import { AdvancedDynamicTexture, StackPanel, Button, TextBlock, Rectangle, Control, Image } from "@babylonjs/gui";
 import { Environment } from "./environment";
 
@@ -15,6 +15,7 @@ class App {
     private _engine: Engine;
 
     // Game State Related
+    public assets;
 
     // Sounds
 
@@ -24,7 +25,6 @@ class App {
     private _environment: Environment;
 
     // Post Process
-    private _transition: boolean = false;
 
     private _state: number = 0;
 
@@ -299,6 +299,9 @@ class App {
         const environment = new Environment(scene);
         this._environment = environment;
         await this._environment.load();
+
+        // load character assets after the env is loaded
+        await this._loadCharacterAssets(scene); 
     }
 
     private async _goToGame() {
@@ -341,9 +344,54 @@ class App {
         this._engine.hideLoadingUI();
 
         this._scene.attachControl();
-
-
     }    
+
+    private async _loadCharacterAssets(scene): Promise<any> {
+        async function loadCharacter() {
+            // collision mesh
+            const outer = MeshBuilder.CreateBox("outer", { width: 2, depth: 1, height: 3 }, scene);
+            outer.isVisible = false;
+            outer.isPickable = false;
+            outer.checkCollisions = true;
+
+            // move origin of box collider to the bottom of the mesh (to match imported player mesh)
+            outer.bakeTransformIntoVertices(Matrix.Translation(0, 1.5, 0));
+
+            // for collisions
+            outer.ellipsoid = new Vector3(1, 1.5, 1);
+            outer.ellipsoidOffset = new Vector3(0, 1.5, 0);
+
+            outer.rotationQuaternion = new Quaternion(0, 1, 0, 0);
+
+            // temp mesh, will import a glb file later
+            // --TEMP--
+            var box = MeshBuilder.CreateBox("Small1", { width: 0.5, depth: 0.5, height: 0.25, 
+                faceColors: [new Color4(0, 0, 0, 1), new Color4(0, 0, 0, 1), new Color4(0, 0, 0, 1), 
+                new Color4(0, 0, 0, 1), new Color4(0, 0, 0, 1), new Color4(0, 0, 0, 1)] }, scene);
+            box.position.y = 1.5;
+            box.position.z = 1;
+
+            var body = MeshBuilder.CreateCylinder("body", { height: 3, diameterTop: 2, diameterBottom: 2, tessellation: 0, subdivisions: 0}, scene);
+            var bodymt1 = new StandardMaterial("red", scene);
+            bodymt1.diffuseColor = new Color3(0.8, 0.5, 0.5);
+            body.material = bodymt1;
+            body.isPickable = false;
+            body.bakeTransformIntoVertices(Matrix.Translation(0, 1.5, 0));
+
+            // parent the meshes
+            box.parent = body;
+            body.parent = outer;
+
+            return {
+                mesh: outer as Mesh
+            }
+        }
+
+        return loadCharacter().then((assets) => {
+            this.assets = assets;
+        });
+
+    }
 
 }
 
