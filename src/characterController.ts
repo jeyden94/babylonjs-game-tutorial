@@ -1,4 +1,4 @@
-import { ArcRotateCamera, Camera, Mesh, Scene, ShadowGenerator, TransformNode, UniversalCamera, Vector3 } from "@babylonjs/core";
+import { ArcRotateCamera, Camera, Mesh, Quaternion, Scene, ShadowGenerator, TransformNode, UniversalCamera, Vector3 } from "@babylonjs/core";
 import { ThinParticleSystem } from "@babylonjs/core/Particles/thinParticleSystem";
 
 export class Player extends TransformNode {
@@ -18,6 +18,7 @@ export class Player extends TransformNode {
     private static readonly PLAYER_SPEED: number = 0.45;
 
     // player movement variables
+    private _deltaTime: number = 0;
     private _h: number;
     private _v: number;
 
@@ -94,10 +95,25 @@ export class Player extends TransformNode {
         // final movement that takes into consideration the inputs
         this._moveDirection = this._moveDirection.scaleInPlace(this._inputAmt * Player.PLAYER_SPEED);
 
+        // check if there is movement to determine if roration is needed
+        let input = new Vector3(this._input.horizontalAxis, 0, this._input.verticalAxis);
+        if (input.length() == 0) {
+            // if there's no input detected, prevent rotation and keep player in same rotation
+            return
+        }
+
+        // rotation based on input & the camera angle
+        let angle = Math.atan2(this._input.horizontalAxis, this._input.verticalAxis);
+        angle += this._camRoot.rotation.y;
+        let targ = Quaternion.FromEulerAngles(0, angle, 0);
+        this.mesh.rotationQuaternion = Quaternion.Slerp(this.mesh.rotationQuaternion, targ, 10 * this._deltaTime);
+
     }
 
     private _beforeRenderUpdate(): void {
         this._updateFromControls();
+        // move our mesh
+        this.mesh.moveWithCollisions(this._moveDirection);
     }
 
     public activatePlayerCamera(): UniversalCamera {
