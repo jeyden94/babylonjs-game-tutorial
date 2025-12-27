@@ -5,6 +5,7 @@ import { Engine, Scene, ArcRotateCamera, Vector3, HemisphericLight, Mesh, MeshBu
 import { AdvancedDynamicTexture, StackPanel, Button, TextBlock, Rectangle, Control, Image } from "@babylonjs/gui";
 import { Environment } from "./environment";
 import { Player } from "./characterController";
+import { PlayerInput } from "./inputController";
 
 
 enum State { START = 0, GAME = 1 , LOSE = 3, CUTSCENE = 4 }
@@ -18,6 +19,7 @@ class App {
     // Game State Related
     public assets;
     private _player: Player;
+    private _input;
 
     // Sounds
 
@@ -373,7 +375,7 @@ class App {
         shadowGenerator.darkness = 0.4;
 
         // Create the player
-        this._player = new Player(this.assets, scene, shadowGenerator);
+        this._player = new Player(this.assets, scene, shadowGenerator, this._input);
     }
 
     private async _goToGame() {
@@ -405,6 +407,9 @@ class App {
             this._goToLose();
             scene.detachControl();
         });
+
+        //--INPUT--
+        this._input = new PlayerInput(scene); //detect 
 
         await this._initializeGameAsync(scene);
         
