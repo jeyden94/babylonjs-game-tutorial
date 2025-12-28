@@ -1,7 +1,7 @@
 import "@babylonjs/core/Debug/debugLayer";
 import "@babylonjs/inspector";
 import "@babylonjs/loaders/glTF";
-import { Engine, Scene, ArcRotateCamera, Vector3, HemisphericLight, Mesh, MeshBuilder, Color4, FreeCamera, Sound, Effect, PostProcess, Matrix, Quaternion, StandardMaterial, Color3, PointLight, ShadowGenerator } from "@babylonjs/core";
+import { Engine, Scene, ArcRotateCamera, Vector3, HemisphericLight, Mesh, MeshBuilder, Color4, FreeCamera, Sound, Effect, PostProcess, Matrix, Quaternion, StandardMaterial, Color3, PointLight, ShadowGenerator, ImportMeshAsync } from "@babylonjs/core";
 import { AdvancedDynamicTexture, StackPanel, Button, TextBlock, Rectangle, Control, Image } from "@babylonjs/gui";
 import { Environment } from "./environment";
 import { Player } from "./characterController";
@@ -278,7 +278,7 @@ class App {
         cutScene.addControl(next);
 
         next.onPointerUpObservable.add(() => {            
-            this._goToGame();
+            // this._goToGame();
         })
 
         await this._cutScene.whenReadyAsync();
@@ -291,6 +291,7 @@ class App {
         var finishedLoading = false;
         await this._setUpGame().then(res =>{
             finishedLoading = true;
+            this._goToGame();
         });
 
     }
@@ -311,6 +312,7 @@ class App {
 
 
     private async _loadCharacterAssets(scene): Promise<any> {
+
         async function loadCharacter() {
             // collision mesh
             const outer = MeshBuilder.CreateBox("outer", { width: 2, depth: 1, height: 3 }, scene);
@@ -329,26 +331,34 @@ class App {
 
             // temp mesh, will import a glb file later
             // --TEMP--
-            var box = MeshBuilder.CreateBox("Small1", { width: 0.5, depth: 0.5, height: 0.25, 
-                faceColors: [new Color4(0, 0, 0, 1), new Color4(0, 0, 0, 1), new Color4(0, 0, 0, 1), 
-                new Color4(0, 0, 0, 1), new Color4(0, 0, 0, 1), new Color4(0, 0, 0, 1)] }, scene);
-            box.position.y = 1.5;
-            box.position.z = 1;
+            // var box = MeshBuilder.CreateBox("Small1", { width: 0.5, depth: 0.5, height: 0.25, 
+            //     faceColors: [new Color4(0, 0, 0, 1), new Color4(0, 0, 0, 1), new Color4(0, 0, 0, 1), 
+            //     new Color4(0, 0, 0, 1), new Color4(0, 0, 0, 1), new Color4(0, 0, 0, 1)] }, scene);
+            // box.position.y = 1.5;
+            // box.position.z = 1;
 
-            var body = MeshBuilder.CreateCylinder("body", { height: 3, diameterTop: 2, diameterBottom: 2, tessellation: 0, subdivisions: 0 }, scene);
-            var bodymt1 = new StandardMaterial("red", scene);
-            bodymt1.diffuseColor = new Color3(0.8, 0.5, 0.5);
-            body.material = bodymt1;
-            body.isPickable = false;
-            body.bakeTransformIntoVertices(Matrix.Translation(0, 1.5, 0));
+            // var body = MeshBuilder.CreateCylinder("body", { height: 3, diameterTop: 2, diameterBottom: 2, tessellation: 0, subdivisions: 0 }, scene);
+            // var bodymt1 = new StandardMaterial("red", scene);
+            // bodymt1.diffuseColor = new Color3(0.8, 0.5, 0.5);
+            // body.material = bodymt1;
+            // body.isPickable = false;
+            // body.bakeTransformIntoVertices(Matrix.Translation(0, 1.5, 0));
 
             // parent the meshes
-            box.parent = body;
-            body.parent = outer;
 
-            return {
-                mesh: outer as Mesh
-            }
+            return ImportMeshAsync("./models/player.glb", scene).then((result) => {
+                const root = result.meshes[0];
+                //body is our actual player mesh
+                const body = root;
+                body.parent = outer;
+                body.isPickable = false; //so our raycasts don't hit ourself
+                body.getChildMeshes().forEach(m => {
+                    m.isPickable = false;
+                })
+                return {
+                    mesh: outer as Mesh
+                }
+            });
         }
 
         return loadCharacter().then((assets) => {
@@ -417,7 +427,7 @@ class App {
         
         await scene.whenReadyAsync();
         
-        scene.getMeshByName("outer").position = new Vector3(0, 3, 0);
+        scene.getMeshByName("outer").position = scene.getTransformNodeByName("startPosition").getAbsolutePosition(); //move the player to the start position
 
         this._scene.dispose();
         this._state = State.GAME;
