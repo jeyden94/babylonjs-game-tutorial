@@ -32,6 +32,10 @@ export class Player extends TransformNode {
     private _grounded: boolean;
     private _lastGroundPos: Vector3 = Vector3.Zero();
 
+    // mouse click movement
+    private _atDestination: boolean = false;
+    private _destination: Vector3 = new Vector3();
+
 
     constructor(assets, scene: Scene, shadowGenerator: ShadowGenerator, input?) {
         super("player", scene);
@@ -72,7 +76,19 @@ export class Player extends TransformNode {
         this._camRoot.position = Vector3.Lerp(this._camRoot.position, new Vector3(this.mesh.position.x, centerPlayer, this.mesh.position.z), 0.4);
     }
 
-    private _updateFromControls(): void {
+    private _updateFromMouseControls(): void {
+        this._destination.x = this._input.clickVector.x;
+        this._destination.y = this._input.clickVector.y;
+        this._destination.z = this._input.clickVector.z;
+
+        console.log(this.mesh.position, this._destination)
+        let xDiff = this.mesh.position.x - this._destination.x
+        let yDiff = this.mesh.position.y - this._destination.y
+        let zDiff = this.mesh.position.z - this._destination.z
+
+    }
+
+    private _updateFromKeyboardControls(): void {
         this._moveDirection = Vector3.Zero();
         this._h = this._input.horizontal;
         this._v = this._input.vertical;
@@ -173,7 +189,8 @@ export class Player extends TransformNode {
     }
 
     private _beforeRenderUpdate(): void {
-        this._updateFromControls();
+        this._updateFromKeyboardControls();
+        this._updateFromMouseControls();
         this._updateGroundDetection();
     }
 

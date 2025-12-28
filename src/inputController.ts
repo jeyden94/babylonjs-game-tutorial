@@ -1,7 +1,10 @@
-import { Action, ActionManager, ExecuteCodeAction, Scalar, Scene } from "@babylonjs/core";
+import { Action, ActionManager, ExecuteCodeAction, Scalar, Scene, Vector2, Vector3 } from "@babylonjs/core";
 
 export class PlayerInput {
     public inputMap;
+    public clickPosition;
+    
+    private _scene: Scene;
 
     // Simple movement
     public horizontal: number = 0;
@@ -10,7 +13,12 @@ export class PlayerInput {
     public horizontalAxis: number = 0;
     public verticalAxis: number = 0;
 
+    // Vector for click location
+    public clickVector = new Vector3;
+
     constructor(scene: Scene) {
+        this._scene = scene;
+
         scene.actionManager = new ActionManager(scene);
 
         this.inputMap = {};
@@ -22,7 +30,8 @@ export class PlayerInput {
         }));
 
         scene.onBeforeRenderObservable.add(() => {
-            this._updateFromKeyboard();
+            // this._updateFromKeyboard();
+            this._updateFromMouse();
         });
     }
 
@@ -51,4 +60,16 @@ export class PlayerInput {
             this.horizontalAxis = 0;
         }
     }
+
+    private _updateFromMouse(): void {
+        this._scene.onPointerDown = (evt, pickResult) => {
+            if (pickResult.hit) {
+                // console.log(pickResult.pickedPoint)
+                this.clickVector = pickResult.pickedPoint
+                // this.verticalAxis = 0;
+                // this.horizontalAxis = 0;
+            }
+        }
+    }
+
 }
