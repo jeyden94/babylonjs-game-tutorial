@@ -1,4 +1,4 @@
-import { ArcRotateCamera, Camera, Mesh, Quaternion, Scene, ShadowGenerator, TransformNode, UniversalCamera, Vector3 } from "@babylonjs/core";
+import { ArcRotateCamera, Camera, Mesh, Quaternion, Ray, Scene, ShadowGenerator, TransformNode, UniversalCamera, Vector3 } from "@babylonjs/core";
 import { ThinParticleSystem } from "@babylonjs/core/Particles/thinParticleSystem";
 
 export class Player extends TransformNode {
@@ -95,7 +95,7 @@ export class Player extends TransformNode {
         // final movement that takes into consideration the inputs
         this._moveDirection = this._moveDirection.scaleInPlace(this._inputAmt * Player.PLAYER_SPEED);
 
-        // check if there is movement to determine if roration is needed
+        // check if there is movement to determine if rotation is needed
         let input = new Vector3(this._input.horizontalAxis, 0, this._input.verticalAxis);
         if (input.length() == 0) {
             // if there's no input detected, prevent rotation and keep player in same rotation
@@ -108,6 +108,38 @@ export class Player extends TransformNode {
         let targ = Quaternion.FromEulerAngles(0, angle, 0);
         this.mesh.rotationQuaternion = Quaternion.Slerp(this.mesh.rotationQuaternion, targ, 10 * this._deltaTime);
 
+    }
+
+    //--GROUND DETECTION--
+    //Send raycast to the floor to detect if there are any hits with meshes below the character
+    private _floorRaycast(offsetx: number, offsetz: number, raycastlen: number): Vector3 {
+        // position the raycast from bottom center of mesh
+        let raycastFloorPos = new Vector3(
+            this.mesh.position.x + offsetx,
+            this.mesh.position.y + 0.5,
+            this.mesh.position.z + offsetz
+        );
+        let ray = new Ray(raycastFloorPos, Vector3.Up().scale(-1), raycastlen);
+
+        //defined which type of meshes should be pickable
+        let predicate = function (mesh) {
+            return mesh.isPickable && mesh.isEnabled();
+        }
+        let pick = this.scene.pickWithRay(ray, predicate);
+
+        if (pick.hit) {
+            return pick.pickedPoint;
+        } else {
+            return Vector3.Zero();
+        }
+    }
+
+    private _isGrounded(): boolean {
+        if (this._floorRaycast(0, 0, 0.6).equals(Vector3.Zero())) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     private _beforeRenderUpdate(): void {

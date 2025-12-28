@@ -416,6 +416,7 @@ class App {
         await this._initializeGameAsync(scene);
         
         await scene.whenReadyAsync();
+        
         scene.getMeshByName("outer").position = new Vector3(0, 3, 0);
 
         this._scene.dispose();
