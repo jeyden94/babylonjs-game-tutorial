@@ -16,6 +16,8 @@ export class Player extends TransformNode {
     // const values
     private static readonly ORIGINAL_TILT: Vector3 = new Vector3(0.5934119456780721, 0, 0);
     private static readonly PLAYER_SPEED: number = 0.45;
+    private static readonly JUMP_FORCE: number = 0.80;
+    private static readonly GRAVITY: number = -2.8;
 
     // player movement variables
     private _deltaTime: number = 0;
@@ -24,6 +26,11 @@ export class Player extends TransformNode {
 
     private _moveDirection: Vector3 = new Vector3();
     private _inputAmt: number;
+
+    //gravity, ground detection, jumping
+    private _gravity: Vector3 = new Vector3();
+    private _grounded: boolean;
+    private _lastGroundPos: Vector3 = Vector3.Zero();
 
 
     constructor(assets, scene: Scene, shadowGenerator: ShadowGenerator, input?) {
@@ -142,10 +149,32 @@ export class Player extends TransformNode {
         }
     }
 
+    private _updateGroundDetection(): void {
+        this._deltaTime = this.scene.getEngine().getDeltaTime() / 1000.0;
+
+        // if not grounded
+        if (!this._isGrounded()){
+            this._gravity = this._gravity.addInPlace(Vector3.Up().scale(this._deltaTime * Player.GRAVITY));
+            this._grounded = false;
+        }
+
+        //limit the speed of gravity to the negative of the jump power
+        if (this._gravity.y < -Player.JUMP_FORCE) {
+            this._gravity.y = -Player.JUMP_FORCE;
+        }
+        this.mesh.moveWithCollisions(this._moveDirection.addInPlace(this._gravity));
+
+        if (this._isGrounded()) {
+            this._gravity.y = 0;
+            this._grounded = true;
+            this._lastGroundPos.copyFrom(this.mesh.position);
+
+        }
+    }
+
     private _beforeRenderUpdate(): void {
         this._updateFromControls();
-        // move our mesh
-        this.mesh.moveWithCollisions(this._moveDirection);
+        this._updateGroundDetection();
     }
 
     public activatePlayerCamera(): UniversalCamera {
