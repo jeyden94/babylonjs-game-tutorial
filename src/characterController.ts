@@ -15,7 +15,7 @@ export class Player extends TransformNode {
 
     // const values
     private static readonly ORIGINAL_TILT: Vector3 = new Vector3(0.5934119456780721, 0, 0);
-    private static readonly PLAYER_SPEED: number = 0.45;
+    private static readonly PLAYER_SPEED: number = 0.2;
     private static readonly JUMP_FORCE: number = 0.80;
     private static readonly GRAVITY: number = -2.8;
 
@@ -35,6 +35,8 @@ export class Player extends TransformNode {
     // mouse click movement
     private _atDestination: boolean = false;
     private _destination: Vector3 = new Vector3();
+    private _pendingMoves: number;
+    private _currentMove: Vector3 = new Vector3();
 
 
     constructor(assets, scene: Scene, shadowGenerator: ShadowGenerator, input?) {
@@ -77,14 +79,33 @@ export class Player extends TransformNode {
     }
 
     private _updateFromMouseControls(): void {
-        this._destination.x = this._input.clickVector.x;
-        this._destination.y = this._input.clickVector.y;
-        this._destination.z = this._input.clickVector.z;
+        if (!this._input.clickMap || this._input.clickMap.length === 0) {
+            return;
+        }
 
-        console.log(this.mesh.position, this._destination)
-        let xDiff = this.mesh.position.x - this._destination.x
-        let yDiff = this.mesh.position.y - this._destination.y
-        let zDiff = this.mesh.position.z - this._destination.z
+        this._currentMove = this._input.clickMap[0];
+
+        let direction = this._currentMove.subtract(this.mesh.position);
+
+        let distance = direction.length();
+
+        let angle = Math.atan2(direction.x, direction.z);
+
+        let normalizedDirection = direction.normalize();
+
+        if (distance < 0.5) {
+            this._input.clickMap.shift();
+            return;
+        }
+
+        this._moveDirection = normalizedDirection.scale(Player.PLAYER_SPEED);
+
+        let targetRotation = Quaternion.FromEulerAngles(0, angle, 0);
+        this.mesh.rotationQuaternion = Quaternion.Slerp(
+            this.mesh.rotationQuaternion,
+            targetRotation,
+            10 * this._deltaTime
+        );
 
     }
 

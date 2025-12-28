@@ -411,7 +411,7 @@ class App {
         });
 
         //--INPUT--
-        this._input = new PlayerInput(scene); //detect 
+        this._input = new PlayerInput(scene, this._environment); //detect 
 
         await this._initializeGameAsync(scene);
         

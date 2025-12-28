@@ -1,4 +1,4 @@
-import { MeshBuilder, Scene, Vector3 } from "@babylonjs/core";
+import { Action, ActionManager, MeshBuilder, Scene, Vector3 } from "@babylonjs/core";
 
 export class Environment {
     private _scene: Scene;
