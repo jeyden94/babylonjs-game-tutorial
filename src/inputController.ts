@@ -10,6 +10,10 @@ export class PlayerInput {
     public horizontalAxis: number = 0;
     public verticalAxis: number = 0;
 
+    //jumping and dashing
+    public jumpKeyDown: boolean = false;
+    public dashing: boolean = false;
+
     constructor(scene: Scene) {
         scene.actionManager = new ActionManager(scene);
 
@@ -50,5 +54,18 @@ export class PlayerInput {
             this.horizontal = 0;
             this.horizontalAxis = 0;
         }
+        //dash
+        if (this.inputMap["Shift"]) {
+            this.dashing = true;
+        } else {
+            this.dashing = false;
+        }
+        //Jump checks (SPACE)
+        if (this.inputMap[" "]) {
+            this.jumpKeyDown = true;
+        } else {
+            this.jumpKeyDown = false;
+        }
+
     }
 }
