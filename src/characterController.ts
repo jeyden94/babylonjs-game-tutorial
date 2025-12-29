@@ -30,7 +30,7 @@ export class Player extends TransformNode {
     private _h: number;
     private _v: number;
 
-    private _moveDirection: Vector3 = new Vector3();
+    private _moveDirection: Vector3 = Vector3.Zero();
     private _inputAmt: number;
 
     //dashing
@@ -154,12 +154,18 @@ export class Player extends TransformNode {
     }
 
     private _updateFromMouseControls(): void {
+        this._moveDirection = Vector3.Zero();
+
+
         if (!this._input.clickMap || this._input.clickMap.length === 0) {
             if (this._input.centerKeyDown && this._centerCount > 0 && this._centered == false) {
                 this._updateCamera();
             }
             return;
         }
+
+        // this._moveDirection = Vector3.Zero();
+
         this._centered = false;
         this._centerCount = 1;
 
@@ -194,76 +200,76 @@ export class Player extends TransformNode {
 
     private _updateFromControls(): void {
 
-        Object.keys(this._input.inputMap).forEach(key => {
-            // console.log(key, this._input.inputMap[key]);
-            if ( this._input.inputMap[key] == true && key !== "h") {
-                this._centered = false;
-                this._centerCount = 1;
-            }
-        });
+        // Object.keys(this._input.inputMap).forEach(key => {
+        //     // console.log(key, this._input.inputMap[key]);
+        //     if ( this._input.inputMap[key] == true && key !== "h") {
+        //         this._centered = false;
+        //         this._centerCount = 1;
+        //     }
+        // });
 
         this._moveDirection = Vector3.Zero();
-        this._h = this._input.horizontal;
-        this._v = this._input.vertical;
+        // this._h = this._input.horizontal;
+        // this._v = this._input.vertical;
 
-        if (this._input.dashing && !this._dashPressed 
-            && this._canDash && !this._grounded) {
-            this._canDash = false; //started dashing, can't do another
-            this._dashPressed = true; //start the dash sequence
-        }
+        // if (this._input.dashing && !this._dashPressed 
+        //     && this._canDash && !this._grounded) {
+        //     this._canDash = false; //started dashing, can't do another
+        //     this._dashPressed = true; //start the dash sequence
+        // }
 
-        if (this._input.centerKeyDown && this._centerCount > 0 && this._centered == false) {
-            this._updateCamera();
-        }
+        // if (this._input.centerKeyDown && this._centerCount > 0 && this._centered == false) {
+        //     this._updateCamera();
+        // }
 
-        let dashFactor = 1;
-        //if you're dashing, scale movement
-        if (this._dashPressed) {
-            if (this.dashTime > Player.DASH_TIME) {
-                this.dashTime = 0;
-                this._dashPressed = false;
-            } else {
-                dashFactor = Player.DASH_FACTOR;
-            }
-            this.dashTime++;
-        }
+        // let dashFactor = 1;
+        // //if you're dashing, scale movement
+        // if (this._dashPressed) {
+        //     if (this.dashTime > Player.DASH_TIME) {
+        //         this.dashTime = 0;
+        //         this._dashPressed = false;
+        //     } else {
+        //         dashFactor = Player.DASH_FACTOR;
+        //     }
+        //     this.dashTime++;
+        // }
 
         //--MOVEMENTS BASED ON CAMERA (as it rotates)--
-        let fwd = this.mesh.forward;
-        let right = this.mesh.right;
-        let correctedVertical = fwd.scaleInPlace(this._v);
-        let correctedHorizontal = right.scaleInPlace(this._h);
+        // let fwd = this.mesh.forward;
+        // let right = this.mesh.right;
+        // let correctedVertical = fwd.scaleInPlace(this._v);
+        // let correctedHorizontal = right.scaleInPlace(this._h);
 
-        // movement based off of camera's view
-        let move = correctedHorizontal.addInPlace(correctedVertical);
+        // // movement based off of camera's view
+        // let move = correctedHorizontal.addInPlace(correctedVertical);
 
         // clear y so that the character doesn't fly up, normalize for next step
-        this._moveDirection = new Vector3((move).normalize().x * dashFactor, 0, (move).normalize().z * dashFactor);
+        // this._moveDirection = new Vector3((move).normalize().x * dashFactor, 0, (move).normalize().z * dashFactor);
 
         // clamp the input value so that diagonal movement isn't twice as fast
-        let inputMag = Math.abs(this._h) + Math.abs(this._v);
-        if (inputMag < 0) {
-            this._inputAmt = 0;
-        } else if (inputMag > 1) {
-            this._inputAmt = 1;
-        } else {
-            this._inputAmt = inputMag;
-        }
+        // let inputMag = Math.abs(this._h) + Math.abs(this._v);
+        // if (inputMag < 0) {
+        //     this._inputAmt = 0;
+        // } else if (inputMag > 1) {
+        //     this._inputAmt = 1;
+        // } else {
+        //     this._inputAmt = inputMag;
+        // }
 
         // final movement that takes into consideration the inputs
-        this._moveDirection = this._moveDirection.scaleInPlace(this._inputAmt * Player.PLAYER_SPEED);
+        // this._moveDirection = this._moveDirection.scaleInPlace(this._inputAmt * Player.PLAYER_SPEED);
 
         // check if there is movement to determine if rotation is needed
-        let input = new Vector3(this._input.horizontalAxis, 0, this._input.verticalAxis);
-        if (input.length() == 0) {
-            return
-        }
+        // let input = new Vector3(this._input.horizontalAxis, 0, this._input.verticalAxis);
+        // if (input.length() == 0) {
+        //     return
+        // }
 
-        // rotation based on input & the camera angle
-        let angle = Math.atan2(this._input.horizontalAxis, this._input.verticalAxis);
-        // angle += this._camRoot.rotation.y;
-        let targ = Quaternion.FromEulerAngles(0, angle, 0);
-        this.mesh.rotationQuaternion = Quaternion.Slerp(this.mesh.rotationQuaternion, targ, 10 * this._deltaTime);
+        // // rotation based on input & the camera angle
+        // let angle = Math.atan2(this._input.horizontalAxis, this._input.verticalAxis);
+        // // angle += this._camRoot.rotation.y;
+        // let targ = Quaternion.FromEulerAngles(0, angle, 0);
+        // this.mesh.rotationQuaternion = Quaternion.Slerp(this.mesh.rotationQuaternion, targ, 10 * this._deltaTime);
 
     }
 
@@ -394,7 +400,8 @@ export class Player extends TransformNode {
     }
 
     private _beforeRenderUpdate(): void {
-        this._updateFromControls();
+        // this._moveDirection = Vector3.Zero();
+        // this._updateFromControls();
         this._updateFromMouseControls();
         this._updateGroundDetection();
     }
