@@ -4,6 +4,7 @@ export class Environment {
     private _scene: Scene;
     public env;
     public meshes;
+    public camera;
 
     constructor(scene: Scene) {
         this._scene = scene;

@@ -1,9 +1,8 @@
-import { ArcRotateCamera, Tools, Camera, Mesh, Quaternion, Ray, Scene, ShadowGenerator, TransformNode, UniversalCamera, Vector3 } from "@babylonjs/core";
+import { ArcRotateCamera, Camera, Mesh, Quaternion, Ray, Scene, ShadowGenerator, TransformNode, UniversalCamera, Vector3 } from "@babylonjs/core";
 import { ThinParticleSystem } from "@babylonjs/core/Particles/thinParticleSystem";
 
-export class Player extends TransformNode {
-    // public camera: UniversalCamera;
-    public camera: ArcRotateCamera;
+export class SelectedUnit extends TransformNode {
+    public camera: UniversalCamera;
     public scene: Scene;
     private _input: any;
 
@@ -17,7 +16,7 @@ export class Player extends TransformNode {
     public mesh: Mesh; // outer collisionbox of player
 
     // const values
-    private static readonly ORIGINAL_TILT: Vector3 = new Vector3(0, 0, 0);
+    private static readonly ORIGINAL_TILT: Vector3 = new Vector3(0.5934119456780721, 0, 0);
     private static readonly PLAYER_SPEED: number = 0.45;
     private static readonly JUMP_FORCE: number = 0.80;
     private static readonly GRAVITY: number = -2.8;
@@ -65,49 +64,20 @@ export class Player extends TransformNode {
         this._input = input; // inputs we will get from inputController.ts
     }
 
-    // private _setUpPlayerCamera(): UniversalCamera {
-    //     // root cam parent that handles positioning of the cam to follow the player
-    //     this._camRoot = new TransformNode("root");
-    //     this._camRoot.position = new Vector3(0, 0, 0); 
-    //     this._camRoot.rotation = new Vector3(0, Math.PI, 0);
-
-    //     let yTilt = new TransformNode("ytilt");
-    //     yTilt.rotation = Player.ORIGINAL_TILT;
-    //     this._yTilt = yTilt;
-    //     yTilt.parent = this._camRoot;
-
-    //     this.camera = new UniversalCamera("cam", new Vector3(0, 0, -60), this.scene);
-    //     this.camera.lockedTarget = this._camRoot.position;
-    //     this.camera.fov = 0.47350045992678597;
-    //     this.camera.parent = yTilt;
-
-    //     this.scene.activeCamera = this.camera;
-    //     return this.camera;
-        
-    // }
-
-    private _setUpPlayerCamera(): ArcRotateCamera {
+    private _setUpPlayerCamera(): UniversalCamera {
         // root cam parent that handles positioning of the cam to follow the player
         this._camRoot = new TransformNode("root");
         this._camRoot.position = new Vector3(0, 0, 0); 
-        this._camRoot.rotation = new Vector3(0, 0, 0);
+        this._camRoot.rotation = new Vector3(0, Math.PI, 0);
 
         let yTilt = new TransformNode("ytilt");
         yTilt.rotation = Player.ORIGINAL_TILT;
         this._yTilt = yTilt;
         yTilt.parent = this._camRoot;
 
-        this.camera = new ArcRotateCamera(
-            "camera", 
-            Tools.ToRadians(90),   // alpha: keeps camera behind character
-            Tools.ToRadians(60),   // beta: INCREASE this to look more downward (try 75-85)
-            35,                     // radius: distance
-            Vector3.Zero(), 
-            this.scene
-        );        
-        
+        this.camera = new UniversalCamera("cam", new Vector3(0, 0, -60), this.scene);
         this.camera.lockedTarget = this._camRoot.position;
-        this.camera.fov = 0.8;
+        this.camera.fov = 0.47350045992678597;
         this.camera.parent = yTilt;
 
         this.scene.activeCamera = this.camera;
@@ -380,15 +350,7 @@ export class Player extends TransformNode {
         this._updateGroundDetection();
     }
 
-    // public activatePlayerCamera(): UniversalCamera {
-    //     this.scene.registerBeforeRender(() => {
-    //         this._beforeRenderUpdate();
-    //         // this._updateCamera();
-    //     })
-    //     return this.camera;
-    // }
-
-    public activatePlayerCamera(): ArcRotateCamera {
+    public activatePlayerCamera(): UniversalCamera {
         this.scene.registerBeforeRender(() => {
             this._beforeRenderUpdate();
             // this._updateCamera();

@@ -6,6 +6,7 @@ import { AdvancedDynamicTexture, StackPanel, Button, TextBlock, Rectangle, Contr
 import { Environment } from "./environment";
 import { Player } from "./characterController";
 import { PlayerInput } from "./inputController";
+import { Camera } from "./cameraController";
 
 
 enum State { START = 0, GAME = 1 , LOSE = 3, CUTSCENE = 4 }
@@ -15,6 +16,7 @@ class App {
     private _scene: Scene;
     private _canvas: HTMLCanvasElement;
     private _engine: Engine;
+    private _camera: Camera;
 
     // Game State Related
     public assets;
@@ -137,11 +139,6 @@ class App {
             scene.detachControl();
         });
 
-        // let isMobile = false;
-
-        // Add mobile logic here
-
-
         // Scene Finishes Loading
         await scene.whenReadyAsync();
         this._engine.hideLoadingUI();
@@ -203,9 +200,7 @@ class App {
         this._state = State.CUTSCENE;
         this._scene = this._cutScene;
 
-        // var finishedLoading = false;
         await this._setUpGame().then(res =>{
-            // finishedLoading = true;
             this._goToGame();
         });
 
@@ -215,12 +210,10 @@ class App {
         let scene = new Scene(this._engine);
         this._gamescene = scene;
 
-        // create env
         const environment = new Environment(scene);
         this._environment = environment;
         await this._environment.load();
 
-        // load character assets after the env is loaded
         await this._loadCharacterAssets(scene); 
     }
 
@@ -279,6 +272,11 @@ class App {
         this._player = new Player(this.assets, scene, shadowGenerator, this._input);
 
         const camera = this._player.activatePlayerCamera();
+
+        // this._camera =  new Camera(scene)
+
+        // const camera = this._camera.activateCamera();
+
         }
 
     private async _goToGame() {
@@ -318,7 +316,6 @@ class App {
         this._state = State.GAME;
         this._scene = scene;
         this._engine.hideLoadingUI();
-
         this._scene.attachControl();
     }    
 }
