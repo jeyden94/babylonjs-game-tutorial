@@ -24,7 +24,7 @@ export class Environment {
     }
 
     public async _loadAsset() {
-        const result = await ImportMeshAsync("./models/envSetting.glb", this._scene);
+        const result = await ImportMeshAsync("./models/terrain-test.glb", this._scene);
 
         let env = result.meshes[0];
         let allMeshes = env.getChildMeshes();
