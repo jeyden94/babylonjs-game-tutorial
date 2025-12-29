@@ -4,7 +4,6 @@ export class PlayerInput {
     public inputMap;
     public clickMap;
 
-
     private _scene: Scene;
     private _environment;
     public ground;
@@ -19,6 +18,9 @@ export class PlayerInput {
     //jumping and dashing
     public jumpKeyDown: boolean = false;
     public dashing: boolean = false;
+
+    //center camera
+    public centerKeyDown: boolean = false;
 
     constructor(scene: Scene, environment) {
         this._scene = scene;
@@ -38,10 +40,11 @@ export class PlayerInput {
             this.inputMap[evt.sourceEvent.key] = false;
         }));
 
+        // Manage character movement w/ mouse
         this.ground.forEach(m => {
             console.log(m)
             m.actionManager = new ActionManager(scene);
-            m.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnLeftPickTrigger, (evt) => {
+            m.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnRightPickTrigger, (evt) => {
 
             let pickResult = this._scene.pick(this._scene.pointerX, this._scene.pointerY);
 
@@ -58,6 +61,8 @@ export class PlayerInput {
             }
             }));
         })
+
+        // Re-center cam on player
     
 
 
@@ -101,6 +106,12 @@ export class PlayerInput {
             this.jumpKeyDown = true;
         } else {
             this.jumpKeyDown = false;
+        }
+        //center cam on player (h)
+        if (this.inputMap["h"] || this.inputMap["H"]) {
+            this.centerKeyDown = true;
+        } else {
+            this.centerKeyDown = false;
         }
 
     }

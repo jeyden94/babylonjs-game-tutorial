@@ -9,6 +9,8 @@ export class Player extends TransformNode {
     // Camera
     private _camRoot: TransformNode;
     private _yTilt: TransformNode;
+    private _centered: boolean;
+    private _centerCount: number;
 
     // Player
     public mesh: Mesh; // outer collisionbox of player
@@ -85,13 +87,32 @@ export class Player extends TransformNode {
 
     private _updateCamera(): void {
         let centerPlayer = this.mesh.position.y + 2;
-        this._camRoot.position = Vector3.Lerp(this._camRoot.position, new Vector3(this.mesh.position.x, centerPlayer, this.mesh.position.z), 0.4);
+        let currentCenter = this._camRoot.position;
+        let targetCenter = new Vector3(this.mesh.position.x, centerPlayer, this.mesh.position.z);
+
+        this._moveCamera(currentCenter, targetCenter);
+
+        this._centered = true;
+        this._centerCount = 0;
+    }
+
+    private _moveCamera(currentCenter, targetCenter): void {
+        this._camRoot.position = Vector3.Lerp(this._camRoot.position, targetCenter, 0.01);
+        currentCenter = this._camRoot.position;
+        if (Vector3.Distance(currentCenter, targetCenter) > 0.01) {
+            this._moveCamera(currentCenter, targetCenter);
+        } else return;
     }
 
     private _updateFromMouseControls(): void {
         if (!this._input.clickMap || this._input.clickMap.length === 0) {
+            if (this._input.centerKeyDown && this._centerCount > 0 && this._centered == false) {
+                this._updateCamera();
+            }
             return;
         }
+        this._centered = false;
+        this._centerCount = 1;
 
         this._currentMove = this._input.clickMap[0];
 
@@ -105,7 +126,6 @@ export class Player extends TransformNode {
 
         if (distance < 0.5) {
             this._input.clickMap.shift();
-            return;
         }
 
         this._moveDirection = normalizedDirection.scale(Player.PLAYER_SPEED);
@@ -117,9 +137,22 @@ export class Player extends TransformNode {
             10 * this._deltaTime
         );
 
+        if (this._input.centerKeyDown && this._centerCount > 0 && this._centered == false) {
+            this._updateCamera();
+        }
+
     }
 
     private _updateFromControls(): void {
+
+        Object.keys(this._input.inputMap).forEach(key => {
+            // console.log(key, this._input.inputMap[key]);
+            if ( this._input.inputMap[key] == true && key !== "h") {
+                this._centered = false;
+                this._centerCount = 1;
+            }
+        });
+
         this._moveDirection = Vector3.Zero();
         this._h = this._input.horizontal;
         this._v = this._input.vertical;
@@ -128,6 +161,10 @@ export class Player extends TransformNode {
             && this._canDash && !this._grounded) {
             this._canDash = false; //started dashing, can't do another
             this._dashPressed = true; //start the dash sequence
+        }
+
+        if (this._input.centerKeyDown && this._centerCount > 0 && this._centered == false) {
+            this._updateCamera();
         }
 
         let dashFactor = 1;
@@ -170,7 +207,6 @@ export class Player extends TransformNode {
         // check if there is movement to determine if rotation is needed
         let input = new Vector3(this._input.horizontalAxis, 0, this._input.verticalAxis);
         if (input.length() == 0) {
-            // if there's no input detected, prevent rotation and keep player in same rotation
             return
         }
 
@@ -317,9 +353,17 @@ export class Player extends TransformNode {
     public activatePlayerCamera(): UniversalCamera {
         this.scene.registerBeforeRender(() => {
             this._beforeRenderUpdate();
-            this._updateCamera();
+            // this._updateCamera();
         })
         return this.camera;
     }
+
+    // public activateArcCamera(): ArcRotateCamera {
+    //     this.scene.registerBeforeRender(() => {
+    //         this._beforeRenderUpdate();
+    //         // this._updateCamera();
+    //     })
+    //     return this.camera;
+    // }
 
 }

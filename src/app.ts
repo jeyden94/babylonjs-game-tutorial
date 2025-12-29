@@ -368,6 +368,8 @@ class App {
         this._player = new Player(this.assets, scene, shadowGenerator, this._input);
 
         const camera = this._player.activatePlayerCamera();
+        
+        // const camera = this._player.activateArcCamera(); // Where we'll test the RTS cam
     }
 
     private async _goToGame() {
