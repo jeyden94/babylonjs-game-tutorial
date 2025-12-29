@@ -38,11 +38,6 @@ class App {
         this._engine = new Engine(this._canvas, true);
         this._scene = new Scene(this._engine);
 
-        // var camera: ArcRotateCamera = new ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 2, 2, Vector3.Zero(), this._scene);
-        // camera.attachControl(this._canvas, true);
-        // var light1: HemisphericLight = new HemisphericLight("light1", new Vector3(1, 1, 0), this._scene);
-        // var sphere: Mesh = MeshBuilder.CreateSphere("sphere", { diameter: 1 }, this._scene);
-
         // hide/show the Inspector
         window.addEventListener("keydown", (ev) => {
             // Shift+Ctrl+Alt+I
@@ -122,40 +117,10 @@ class App {
         let camera = new FreeCamera("camera1", new Vector3(0, 0, 0), scene);
         camera.setTarget(Vector3.Zero());
 
-        //--SOUNDS--
-        // const start = new Sound("startSong", "./sounds/copycat(revised).mp3", scene, function() {
-
-        // }, {
-        //     volume: 0.25,
-        //     loop: true,
-        //     autoplay: true
-        // });
-        // const sfx = new Sound("selection", "./sounds/vgmenuselect.wav", scene, function(){
-        // });
 
         //--GUI--
         const guiMenu = AdvancedDynamicTexture.CreateFullscreenUI("UI");
         guiMenu.idealHeight = 720;
-
-        //background image
-        // const imageRect = new Rectangle("titleContainer")
-        // imageRect.width = 0.8;
-        // imageRect.thickness = 0;
-        // guiMenu.addControl(imageRect);
-
-        // const startbg = new Image("startbg", "./sprites/start.jpeg");
-        // imageRect.addControl(startbg);
-
-        // const title = new TextBlock("title", "SUMMER'S FESTIVAL");
-        // title.resizeToFit = true;
-        // title.fontFamily = "Ceviche One";
-        // title.fontSize = "64px";
-        // title.color = "white";
-        // title.resizeToFit = true;
-        // title.top = "14px";
-        // title.width = 0.8;
-        // title.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
-        // imageRect.addControl(title);
 
         const startBtn = Button.CreateSimpleButton("start", "PLAY");
         startBtn.fontFamily = "Viga";
@@ -167,37 +132,7 @@ class App {
         startBtn.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;
         guiMenu.addControl(startBtn);
 
-        // transition effect
-        // Effect.RegisterShader("fade",
-        //     "precision highp float;" +
-        //     "varying vec2 vUV;" +
-        //     "uniform sampler2D textureSampler;" +
-        //     "uniform float fadeLevel;" +
-        //     "void main(void){" + 
-        //     "vec4 baseColor = texture2D(textureSampler, vUV) * fadeLevel;" +
-        //     "baseColor.a = 1.0;" +
-        //     "gl_FragColor = baseColor;" +
-        //     "}");
-        
-        // let fadeLevel = 1.0;
-        // this._transition = false;
-        // scene.registerBeforeRender(() => {
-        //     if (this._transition) {
-        //         fadeLevel -= .05;
-        //         if (fadeLevel <= 0){
-        //             // this._goToCutScene();
-        //             this._transition = false;
-        //         }
-        //     }
-        // });
-
         startBtn.onPointerDownObservable.add(() => {
-            // const postProcess = new PostProcess("Fade", "fade", ["fadeLevel"], null, 1.0, camera);
-            // postProcess.onApply = (effect) => {
-            //     effect.setFloat("fadeLevel", fadeLevel);
-            // };
-            // this._transition = true;
-            // sfx.play();
             this._goToCutScene(); // Remove in final
             scene.detachControl();
         });
@@ -260,26 +195,6 @@ class App {
 
         // --GUI--
         const cutScene = AdvancedDynamicTexture.CreateFullscreenUI("cutscene");
-        // let transition = 0;
-        // let canplay = false;
-        // let finished_anim = false;
-        // let anims_loaded = 0;
-
-        // --PROGRESS DIALOGUE--
-        // const next = Button.CreateSimpleButton("next", "NEXT");
-        // next.color = "white";
-        // next.thickness = 0;
-        // next.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;
-        // next.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
-        // next.width = "64px";
-        // next.height = "64px";
-        // next.top = "-3%";
-        // next.left = "-12%";
-        // cutScene.addControl(next);
-
-        // next.onPointerUpObservable.add(() => {            
-        //     // this._goToGame();
-        // })
 
         await this._cutScene.whenReadyAsync();
         this._engine.hideLoadingUI();
@@ -357,10 +272,6 @@ class App {
         light.intensity = 35;
         light.radius = 1;
 
-        // let camera: ArcRotateCamera = new ArcRotateCamera("Camera", 0, Math.PI / 4, 25, Vector3.Zero(), scene);
-        // camera.setTarget(new Vector3(0, 3, 0)); // Look at player position
-        // camera.attachControl(this._canvas, true); // ← ADD THIS LINE
-
         const shadowGenerator = new ShadowGenerator(1024, light);
         shadowGenerator.darkness = 0.4;
 
@@ -368,21 +279,13 @@ class App {
         this._player = new Player(this.assets, scene, shadowGenerator, this._input);
 
         const camera = this._player.activatePlayerCamera();
-        
-        // const camera = this._player.activateArcCamera(); // Where we'll test the RTS cam
-    }
+        }
 
     private async _goToGame() {
 
         // --SETUP SCENE--
         this._scene.detachControl();
-        // let scene = new Scene(this._engine);
         let scene = this._gamescene;
-        // scene.clearColor = new Color4(0, 0, 0, 1);
-
-        // scene.clearColor = new Color4(0.01568627450980392, 0.01568627450980392, 0.20392156862745098);
-        // let camera: ArcRotateCamera = new ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 2, 2, Vector3.Zero(), scene);
-        // camera.setTarget(Vector3.Zero());
 
         // --GUI--
         const playerUI = AdvancedDynamicTexture.CreateFullscreenUI("UI");
