@@ -266,20 +266,20 @@ class App {
         // let anims_loaded = 0;
 
         // --PROGRESS DIALOGUE--
-        const next = Button.CreateSimpleButton("next", "NEXT");
-        next.color = "white";
-        next.thickness = 0;
-        next.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;
-        next.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
-        next.width = "64px";
-        next.height = "64px";
-        next.top = "-3%";
-        next.left = "-12%";
-        cutScene.addControl(next);
+        // const next = Button.CreateSimpleButton("next", "NEXT");
+        // next.color = "white";
+        // next.thickness = 0;
+        // next.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;
+        // next.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
+        // next.width = "64px";
+        // next.height = "64px";
+        // next.top = "-3%";
+        // next.left = "-12%";
+        // cutScene.addControl(next);
 
-        next.onPointerUpObservable.add(() => {            
-            // this._goToGame();
-        })
+        // next.onPointerUpObservable.add(() => {            
+        //     // this._goToGame();
+        // })
 
         await this._cutScene.whenReadyAsync();
         this._engine.hideLoadingUI();
@@ -288,9 +288,9 @@ class App {
         this._state = State.CUTSCENE;
         this._scene = this._cutScene;
 
-        var finishedLoading = false;
+        // var finishedLoading = false;
         await this._setUpGame().then(res =>{
-            finishedLoading = true;
+            // finishedLoading = true;
             this._goToGame();
         });
 
@@ -309,8 +309,6 @@ class App {
         await this._loadCharacterAssets(scene); 
     }
 
-
-
     private async _loadCharacterAssets(scene): Promise<any> {
 
         async function loadCharacter() {
@@ -326,25 +324,7 @@ class App {
             // for collisions
             outer.ellipsoid = new Vector3(1, 1.5, 1);
             outer.ellipsoidOffset = new Vector3(0, 1.5, 0);
-
             outer.rotationQuaternion = new Quaternion(0, 1, 0, 0);
-
-            // temp mesh, will import a glb file later
-            // --TEMP--
-            // var box = MeshBuilder.CreateBox("Small1", { width: 0.5, depth: 0.5, height: 0.25, 
-            //     faceColors: [new Color4(0, 0, 0, 1), new Color4(0, 0, 0, 1), new Color4(0, 0, 0, 1), 
-            //     new Color4(0, 0, 0, 1), new Color4(0, 0, 0, 1), new Color4(0, 0, 0, 1)] }, scene);
-            // box.position.y = 1.5;
-            // box.position.z = 1;
-
-            // var body = MeshBuilder.CreateCylinder("body", { height: 3, diameterTop: 2, diameterBottom: 2, tessellation: 0, subdivisions: 0 }, scene);
-            // var bodymt1 = new StandardMaterial("red", scene);
-            // bodymt1.diffuseColor = new Color3(0.8, 0.5, 0.5);
-            // body.material = bodymt1;
-            // body.isPickable = false;
-            // body.bakeTransformIntoVertices(Matrix.Translation(0, 1.5, 0));
-
-            // parent the meshes
 
             return ImportMeshAsync("./models/player.glb", scene).then((result) => {
                 const root = result.meshes[0];
