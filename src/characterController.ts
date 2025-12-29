@@ -106,9 +106,9 @@ export class Player extends TransformNode {
             this.scene
         );        
         
-        this.camera.lockedTarget = this._camRoot.position;
+        // this.camera.lockedTarget = new Vector3(this.mesh.position.x, this.mesh.position.y, this.mesh.position.z);
         this.camera.fov = 0.8;
-        this.camera.parent = yTilt;
+        // this.camera.parent = yTilt;
 
         this.scene.activeCamera = this.camera;
         return this.camera;
@@ -116,22 +116,41 @@ export class Player extends TransformNode {
     }
 
     private _updateCamera(): void {
-        let centerPlayer = this.mesh.position.y + 2;
-        let currentCenter = this._camRoot.position;
-        let targetCenter = new Vector3(this.mesh.position.x, centerPlayer, this.mesh.position.z);
+        // let centerPlayer = this.mesh.position.y + 20;
+        // let currentCenter = this.camera.position;
+        // let targetCenter = new Vector3(this.mesh.position.x + 15, centerPlayer, this.mesh.position.z);
 
-        this._moveCamera(currentCenter, targetCenter);
+        let targetPosition = new Vector3(
+            this.mesh.position.x, 
+            this.mesh.position.y + 2,  // slight offset above player
+            this.mesh.position.z
+        );
+
+        this._moveCamera(targetPosition);
+
+        // this._moveCamera(currentCenter, targetCenter);
 
         this._centered = true;
         this._centerCount = 0;
     }
 
-    private _moveCamera(currentCenter, targetCenter): void {
-        this._camRoot.position = Vector3.Lerp(this._camRoot.position, targetCenter, 0.01);
-        currentCenter = this._camRoot.position;
-        if (Vector3.Distance(currentCenter, targetCenter) > 0.01) {
-            this._moveCamera(currentCenter, targetCenter);
-        } else return;
+    private _moveCamera(targetPosition: Vector3): void {
+        // Calculate the offset between current target and new target
+        let offset = targetPosition.subtract(this.camera.target);
+        
+        // Move both target AND position by the same offset
+        this.camera.target = Vector3.Lerp(
+            this.camera.target,
+            targetPosition,
+            0.1
+        );
+        
+        // Move the camera position by the same offset to maintain framing
+        this.camera.position = this.camera.position.add(offset.scale(0.1));
+        
+        if (Vector3.Distance(this.camera.target, targetPosition) > 0.01) {
+            requestAnimationFrame(() => this._moveCamera(targetPosition));
+        }
     }
 
     private _updateFromMouseControls(): void {
@@ -210,8 +229,8 @@ export class Player extends TransformNode {
         }
 
         //--MOVEMENTS BASED ON CAMERA (as it rotates)--
-        let fwd = this._camRoot.forward;
-        let right = this._camRoot.right;
+        let fwd = this.mesh.forward;
+        let right = this.mesh.right;
         let correctedVertical = fwd.scaleInPlace(this._v);
         let correctedHorizontal = right.scaleInPlace(this._h);
 
@@ -242,7 +261,7 @@ export class Player extends TransformNode {
 
         // rotation based on input & the camera angle
         let angle = Math.atan2(this._input.horizontalAxis, this._input.verticalAxis);
-        angle += this._camRoot.rotation.y;
+        // angle += this._camRoot.rotation.y;
         let targ = Quaternion.FromEulerAngles(0, angle, 0);
         this.mesh.rotationQuaternion = Quaternion.Slerp(this.mesh.rotationQuaternion, targ, 10 * this._deltaTime);
 
