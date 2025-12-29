@@ -2,7 +2,13 @@ import { Action, ActionManager, ExecuteCodeAction, Scalar, Scene } from "@babylo
 
 export class PlayerInput {
     public inputMap;
+    public clickMap;
 
+
+    private _scene: Scene;
+    private _environment;
+    public ground;
+    
     // Simple movement
     public horizontal: number = 0;
     public vertical: number = 0;
@@ -14,16 +20,46 @@ export class PlayerInput {
     public jumpKeyDown: boolean = false;
     public dashing: boolean = false;
 
-    constructor(scene: Scene) {
+    constructor(scene: Scene, environment) {
+        this._scene = scene;
+        console.log(environment.meshes)
+        this.ground = environment.meshes;
+
         scene.actionManager = new ActionManager(scene);
+        // this.ground.actionManager = new ActionManager(scene);
 
         this.inputMap = {};
+        this.clickMap = [];
+
         scene.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnKeyDownTrigger, (evt) => {
             this.inputMap[evt.sourceEvent.key] = true;
         }));
         scene.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnKeyUpTrigger, (evt) => {
             this.inputMap[evt.sourceEvent.key] = false;
         }));
+
+        this.ground.forEach(m => {
+            console.log(m)
+            m.actionManager = new ActionManager(scene);
+            m.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnLeftPickTrigger, (evt) => {
+
+            let pickResult = this._scene.pick(this._scene.pointerX, this._scene.pointerY);
+
+            if (pickResult.hit) {
+
+                let worldPosition = pickResult.pickedPoint;
+
+                if (evt.sourceEvent.shiftKey == true) {
+                    this.clickMap.push(worldPosition)
+                } else {
+                    this.clickMap.length = 0;
+                    this.clickMap.push(worldPosition)
+                }
+            }
+            }));
+        })
+    
+
 
         scene.onBeforeRenderObservable.add(() => {
             this._updateFromKeyboard();

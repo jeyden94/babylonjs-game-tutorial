@@ -2,6 +2,8 @@ import { ImportMeshAsync, MeshBuilder, Scene, Vector3 } from "@babylonjs/core";
 
 export class Environment {
     private _scene: Scene;
+    public env;
+    public meshes;
 
     constructor(scene: Scene) {
         this._scene = scene;
@@ -15,6 +17,9 @@ export class Environment {
             m.receiveShadows = true;
             m.checkCollisions = true;
         })
+
+        this.env = assets.env;
+        this.meshes = assets.allMeshes;
 
     }
 

@@ -40,6 +40,12 @@ export class Player extends TransformNode {
     private _lastGroundPos: Vector3 = Vector3.Zero();
     private _jumpCount: number = 1;
 
+    // mouse click movement
+    private _atDestination: boolean = false;
+    private _destination: Vector3 = new Vector3();
+    private _pendingMoves: number;
+    private _currentMove: Vector3 = new Vector3();
+
 
     constructor(assets, scene: Scene, shadowGenerator: ShadowGenerator, input?) {
         super("player", scene);
@@ -80,6 +86,37 @@ export class Player extends TransformNode {
     private _updateCamera(): void {
         let centerPlayer = this.mesh.position.y + 2;
         this._camRoot.position = Vector3.Lerp(this._camRoot.position, new Vector3(this.mesh.position.x, centerPlayer, this.mesh.position.z), 0.4);
+    }
+
+    private _updateFromMouseControls(): void {
+        if (!this._input.clickMap || this._input.clickMap.length === 0) {
+            return;
+        }
+
+        this._currentMove = this._input.clickMap[0];
+
+        let direction = this._currentMove.subtract(this.mesh.position);
+
+        let distance = direction.length();
+
+        let angle = Math.atan2(direction.x, direction.z);
+
+        let normalizedDirection = direction.normalize();
+
+        if (distance < 0.5) {
+            this._input.clickMap.shift();
+            return;
+        }
+
+        this._moveDirection = normalizedDirection.scale(Player.PLAYER_SPEED);
+
+        let targetRotation = Quaternion.FromEulerAngles(0, angle, 0);
+        this.mesh.rotationQuaternion = Quaternion.Slerp(
+            this.mesh.rotationQuaternion,
+            targetRotation,
+            10 * this._deltaTime
+        );
+
     }
 
     private _updateFromControls(): void {
@@ -273,6 +310,7 @@ export class Player extends TransformNode {
 
     private _beforeRenderUpdate(): void {
         this._updateFromControls();
+        this._updateFromMouseControls();
         this._updateGroundDetection();
     }
 
