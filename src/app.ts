@@ -6,7 +6,7 @@ import { AdvancedDynamicTexture, StackPanel, Button, TextBlock, Rectangle, Contr
 import { Environment } from "./environment";
 import { Player } from "./characterController";
 import { PlayerInput } from "./inputController";
-// import { Camera } from "./cameraController";
+import { RTSArcCam } from "./cameraController";
 
 
 enum State { START = 0, GAME = 1 , LOSE = 3, CUTSCENE = 4 }
@@ -16,7 +16,7 @@ class App {
     private _scene: Scene;
     private _canvas: HTMLCanvasElement;
     private _engine: Engine;
-    // private _camera: Camera;
+    private _camera: ArcRotateCamera;
 
     // Game State Related
     public assets;
@@ -257,8 +257,7 @@ class App {
 
     private async _initializeGameAsync(scene): Promise<void> {
 
-        // temp light to light the entire scene
-        var light0 = new HemisphericLight("HemiLight", new Vector3(0, 1, 0), scene);
+        var light0 = new HemisphericLight("HemiLight", new Vector3(0, 1, 0), scene); // temp light to light the entire scene
 
         const light = new PointLight("sparklight", new Vector3(0, 0, 0), scene);
         light.diffuse = new Color3(0.08627450980392157, 0.10980392156862745, 0.15294117647058825);
@@ -268,14 +267,12 @@ class App {
         const shadowGenerator = new ShadowGenerator(1024, light);
         shadowGenerator.darkness = 0.4;
 
-        // Create the player
-        this._player = new Player(this.assets, scene, shadowGenerator, this._input);
+        const camera = new RTSArcCam(scene);
+        scene.activeCamera = camera;
+        
+        this._player = new Player(this.assets, scene, shadowGenerator, camera, this._input);
 
-        const camera = this._player.activatePlayerCamera();
-
-        // this._camera =  new Camera(scene)
-
-        // const camera = this._camera.activateCamera();
+        this._player.beforeRenderUpdate();
 
         }
 
