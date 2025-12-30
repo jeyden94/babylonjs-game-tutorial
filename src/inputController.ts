@@ -24,7 +24,6 @@ export class PlayerInput {
 
     constructor(scene: Scene, environment) {
         this._scene = scene;
-        console.log(environment.meshes)
         this.ground = environment.meshes;
 
         scene.actionManager = new ActionManager(scene);
@@ -42,7 +41,6 @@ export class PlayerInput {
 
         // Manage character movement w/ mouse
         this.ground.forEach(m => {
-            console.log(m)
             m.actionManager = new ActionManager(scene);
             m.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnRightPickTrigger, (evt) => {
 

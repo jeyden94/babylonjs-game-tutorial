@@ -6,7 +6,7 @@ import { AdvancedDynamicTexture, StackPanel, Button, TextBlock, Rectangle, Contr
 import { Environment } from "./environment";
 import { Player } from "./characterController";
 import { PlayerInput } from "./inputController";
-import { Camera } from "./cameraController";
+// import { Camera } from "./cameraController";
 
 
 enum State { START = 0, GAME = 1 , LOSE = 3, CUTSCENE = 4 }
@@ -16,7 +16,7 @@ class App {
     private _scene: Scene;
     private _canvas: HTMLCanvasElement;
     private _engine: Engine;
-    private _camera: Camera;
+    // private _camera: Camera;
 
     // Game State Related
     public assets;
